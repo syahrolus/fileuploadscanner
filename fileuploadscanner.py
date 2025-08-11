@@ -67,7 +67,8 @@ async def main_async(args):
         "image/jpg",
         "image/jpeg",
         "image/png",
-        "image/gif"
+        "image/gif",
+        "image/svg+xml"
     ]
 
     # Prepare jobs
