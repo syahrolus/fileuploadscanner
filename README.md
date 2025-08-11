@@ -49,3 +49,8 @@ python upload_scanner.py \
     --proxy http://127.0.0.1:8080 \
     --guess-template "https://target.com/directory/{filename}"
 ```
+
+![](img/img1)
+![](img/img2)
+![](img/img3)
+![](img/img4)
