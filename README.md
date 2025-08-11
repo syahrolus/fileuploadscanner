@@ -17,9 +17,10 @@ Extension		Content-Type		File Content (magic)
 ## Usage
 
 ```bash
-> python .\fileuploadscanner.py -h
+> python .\fileuploadscanner.py --help
 usage: fileuploadscanner.py [-h] --url URL --field FIELD --wordlist WORDLIST --magic-list MAGIC_LIST
-                            [--guess-template GUESS_TEMPLATE] [--headers [HEADERS ...]] [--proxy PROXY] [--concurrency CONCURRENCY]
+                            [--guess-template GUESS_TEMPLATE] [--headers [HEADERS ...]] [--extra-fields [EXTRA_FIELDS ...]]
+                            [--proxy PROXY] [--concurrency CONCURRENCY]
 
 File Upload Vulnerability Scanner
 
@@ -34,6 +35,8 @@ options:
                         URL template for guessing uploaded file location (optional)
   --headers [HEADERS ...]
                         Custom headers: 'Header: Value'
+  --extra-fields [EXTRA_FIELDS ...]
+                        Additional form fields: key:value
   --proxy PROXY         Proxy URL (e.g., http://127.0.0.1:8080)
   --concurrency CONCURRENCY
                         Number of concurrent uploads
@@ -47,7 +50,8 @@ python upload_scanner.py \
     --magic-list magic-list.txt \
     --headers "Cookie: SESSION=abc123" \
     --proxy http://127.0.0.1:8080 \
-    --guess-template "https://target.com/directory/{filename}"
+    --guess-template "https://target.com/directory/{filename}" \
+    --extra-fields "name:John" "age:25"
 ```
 
 ![](img/img1.png)
