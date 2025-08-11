@@ -50,7 +50,7 @@ python upload_scanner.py \
     --guess-template "https://target.com/directory/{filename}"
 ```
 
-![](img/img1)
-![](img/img2)
-![](img/img3)
-![](img/img4)
+![](img/img1.png)
+![](img/img2.png)
+![](img/img3.png)
+![](img/img4.png)
