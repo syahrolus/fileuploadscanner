@@ -9,8 +9,15 @@ import os
 def rand_token(length=8):
     return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(length))
 
-async def try_upload(session, url, field, filename, payload_bytes, content_type, headers, proxy):
+async def try_upload(session, url, field, filename, payload_bytes, content_type, headers, proxy, extra_fields):
     data = aiohttp.FormData()
+
+    # Add extra fields if provided
+    if extra_fields:
+        for k, v in extra_fields.items():
+            data.add_field(k, v)
+
+    # Add file field
     data.add_field(field, payload_bytes, filename=filename, content_type=content_type)
 
     async with session.post(url, data=data, headers=headers, proxy=proxy) as resp:
@@ -29,7 +36,10 @@ async def worker(queue, args, magics, exts, content_types):
             fname, magic_name, payload_bytes, ct, token = await queue.get()
 
             # Upload attempt
-            await try_upload(session, args.url, args.field, fname, payload_bytes, ct, args.header_dict, args.proxy)
+            await try_upload(
+                session, args.url, args.field, fname, payload_bytes, ct,
+                args.header_dict, args.proxy, args.extra_fields_dict
+            )
 
             # Optional guessing
             if args.guess_template:
@@ -46,11 +56,18 @@ async def main_async(args):
             k, v = h.split(":", 1)
             args.header_dict[k.strip()] = v.strip()
 
+    # Load extra fields
+    args.extra_fields_dict = {}
+    if args.extra_fields:
+        for ef in args.extra_fields:
+            k, v = ef.split(":", 1)
+            args.extra_fields_dict[k.strip()] = v.strip()
+
     # Load wordlist
     with open(args.wordlist, "r", encoding="utf-8") as f:
         exts = [line.strip() for line in f if line.strip()]
 
-    # Load magic payloads
+    # Load magic payloads (file paths or hex)
     magics = {}
     with open(args.magic_list, "r", encoding="utf-8") as f:
         for line in f:
@@ -62,13 +79,12 @@ async def main_async(args):
                 else:
                     magics[name] = bytes.fromhex(path.strip())
 
-    # Content types
+    # Content types to brute-force
     content_types = [
         "image/jpg",
         "image/jpeg",
         "image/png",
-        "image/gif",
-        "image/svg+xml"
+        "image/gif"
     ]
 
     # Prepare jobs
@@ -94,6 +110,7 @@ def main():
     parser.add_argument("--magic-list", required=True, help="Magic headers or file paths list")
     parser.add_argument("--guess-template", help="URL template for guessing uploaded file location (optional)", required=False)
     parser.add_argument("--headers", nargs="*", help="Custom headers: 'Header: Value'")
+    parser.add_argument("--extra-fields", nargs="*", help="Additional form fields: key:value")
     parser.add_argument("--proxy", help="Proxy URL (e.g., http://127.0.0.1:8080)")
     parser.add_argument("--concurrency", type=int, default=5, help="Number of concurrent uploads")
     args = parser.parse_args()
